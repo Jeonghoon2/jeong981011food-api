@@ -6,7 +6,7 @@ authors = [
     {name = "Jeonghoon2", email = "ukidd12@naver.com"},
 ]
 dependencies = [
-    "fastapi[standard]>=0.114.1",
+    "fastapi[standard]>=0.114.2",
     "uvicorn[standard]>=0.30.6",
     "pandas>=2.2.2",
 ]

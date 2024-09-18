@@ -6,4 +6,6 @@ COPY src/cp_api/main.py /code/
 
 RUN pip install --no-cache-dir --upgrade git+https://github.com/Jeonghoon2/jeong981011food-api.git@main
 
+VOLUME /data
+
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080", "--reload"]

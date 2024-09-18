@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 import pickle
 import datetime
 import os
@@ -6,6 +7,18 @@ import pandas as pd
 
 app = FastAPI()
 
+origins = [
+    "http://localhost",
+    # "https://"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allowcredentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
 
 @app.get("/")
 def read_root():
