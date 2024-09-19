@@ -11,9 +11,11 @@ app = FastAPI()
 origins = [
     "http://localhost",
     "https://localhost:8080",
-    "https://food-jh-98.web.app"
-    "https://food-jh-98.web.app/*"
-    "https://food-jh-98.web.app/n20/"
+    "https://food-jh-98.web.app",
+    "https://food-jh-98.web.app/*",
+    "https://food-jh-98.web.app/n20/",
+    "https://api.samdulshop.shop/n20/",
+    "https://api.samdulshop.shop/n20/*"
 ]
 
 app.add_middleware(
