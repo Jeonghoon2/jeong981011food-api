@@ -10,7 +10,8 @@ app = FastAPI()
 # CORS 설정
 origins = [
     "http://localhost",
-    "https://localhost:8080"
+    "https://localhost:8080",
+    "https://jeong98-food.web.app"
 ]
 
 app.add_middleware(
