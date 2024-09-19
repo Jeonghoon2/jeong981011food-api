@@ -25,9 +25,33 @@ app.add_middleware(
 def read_root():
     return {"Hello": "n20"}
 
-# 도커에서 VOLUME으로 마운트된 /data 디렉터리로 경로 설정
-def get_path():
-    return "~/data/n20"
+# 리팩토링 -> CSV 파일을 저장
+def save_to_csv(food, time):
+
+    # CSV Path 설정
+    f_csv = os.path.join("data/n20")  # 절대 경로로 변경
+
+    # 폴더 여부에 따라 생성
+    if not os.path.exists(f_csv):
+        os.makedirs(f_csv)
+
+    # CSV FULL Path 설정
+    csv_file_path = os.path.join(f_csv, "food.csv")
+
+    # CSV 파일이 존재하지 않으면 새로 생성, 있으면 읽기
+    if not os.path.exists(csv_file_path):
+        df = pd.DataFrame(columns=["food", "time"])
+    else:
+        df = pd.read_csv(csv_file_path)
+
+    # 새 데이터 추가 (열 이름 지정)
+    new_data = pd.DataFrame([[food, time]], columns=["food", "time"])
+    df = pd.concat([df, new_data], ignore_index=True)
+
+    # CSV 파일로 저장
+    df.to_csv(csv_file_path, index=False)
+
+
 
 # 음식 이름과 시간을 csv로 저장 -> /data/food.csv
 @app.get("/food")
@@ -36,32 +60,13 @@ def food(name: str):
     current_time = datetime.datetime.now()
     formatted_time = current_time.strftime("%Y-%m-%d %H:%M:%S")
 
-    # CSV 파일 저장을 위한 경로 설정
-    f_csv = os.path.join(get_path())
-    if not os.path.exists(f_csv):
-        os.makedirs(f_csv)
+    # CSV 파일로 저장
+    save_to_csv(name, formatted_time)
 
-    # CSV 파일 경로 설정
-    csv_file_path = os.path.join(f_csv, "food.csv")
-
-    # food.csv 파일이 없으면 생성, 있으면 데이터 추가
-    if not os.path.exists(csv_file_path):
-        df = pd.DataFrame(columns=["food", "time"])
-    else:
-        df = pd.read_csv(csv_file_path)
-
-    # 새 데이터 추가
-    new_data = pd.DataFrame([[name, formatted_time]], columns=["food", "time"])
-    df = pd.concat([df, new_data], ignore_index=True)
-
-    # CSV 파일 저장
-    df.to_csv(csv_file_path, index=False)
-
-    # DB 연결 및 데이터 저장
     try:
         connection = pymysql.connect(
-            host='localhost',
-            port=33306,
+            host=os.getenv("DB_IP", "localhost"),
+            port=int(os.getenv("DB_PORT", "33306")),
             user='food',
             password='1234',
             database='fooddb'
