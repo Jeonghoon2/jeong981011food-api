@@ -12,7 +12,13 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "https://food-jh-98.web.app",
-        "https://api.samdulshop.shop"
+        "https://api.samdulshop.shop",
+        "https://api.samdulshop.shop/n20",
+        "http://localhost",
+        "http://localhost:8020"
+        # "https://ec2-43-203-204-195.ap-northeast-2.compute.amazonaws.com/",
+        # "https://ec2-43-203-204-195.ap-northeast-2.compute.amazonaws.com/n22/",
+
     ],
     allow_credentials=True,
     allow_methods=["*"],
