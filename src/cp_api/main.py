@@ -1,12 +1,13 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import pickle
 import datetime
 import os
 import pandas as pd
+import pymysql.cursors
 
 app = FastAPI()
 
+# CORS 설정
 origins = [
     "http://localhost",
     "https://localhost:8080"
@@ -24,9 +25,9 @@ app.add_middleware(
 def read_root():
     return {"Hello": "n20"}
 
+# 도커에서 VOLUME으로 마운트된 /data 디렉터리로 경로 설정
 def get_path():
-    # 도커에서 VOLUME으로 마운트된 /data 디렉터리로 경로 설정
-    return "/data/n20"
+    return "~/data/n20"
 
 # 음식 이름과 시간을 csv로 저장 -> /data/food.csv
 @app.get("/food")
@@ -35,17 +36,15 @@ def food(name: str):
     current_time = datetime.datetime.now()
     formatted_time = current_time.strftime("%Y-%m-%d %H:%M:%S")
 
-    # 현재 시간과 입력된 음식을 저장
+    # CSV 파일 저장을 위한 경로 설정
     f_csv = os.path.join(get_path())
-
-    # f_csv 폴더가 없다면 생성, 있다면 pass
     if not os.path.exists(f_csv):
         os.makedirs(f_csv)
 
-    # csv 파일 경로 설정
+    # CSV 파일 경로 설정
     csv_file_path = os.path.join(f_csv, "food.csv")
 
-    # f_csv 폴더에 food.csv 파일이 없다면 생성, 있다면 데이터를 추가
+    # food.csv 파일이 없으면 생성, 있으면 데이터 추가
     if not os.path.exists(csv_file_path):
         df = pd.DataFrame(columns=["food", "time"])
     else:
@@ -57,5 +56,23 @@ def food(name: str):
 
     # CSV 파일 저장
     df.to_csv(csv_file_path, index=False)
+
+    # DB 연결 및 데이터 저장
+    try:
+        connection = pymysql.connect(
+            host='localhost',
+            port=33306,
+            user='food',
+            password='1234',
+            database='fooddb'
+        )
+        with connection.cursor() as cursor:
+            sql = "INSERT INTO foodhistory (username, foodname, dt) VALUES (%s, %s, %s)"
+            cursor.execute(sql, ('n20', name, formatted_time))
+            connection.commit()
+    except Exception as e:
+        return {"error": str(e)}
+    finally:
+        connection.close()
 
     return {"food": name, "time": formatted_time}
