@@ -8,19 +8,12 @@ import pymysql.cursors
 app = FastAPI()
 
 # CORS 설정
-origins = [
-    "http://localhost",
-    "https://localhost:8080",
-    "https://food-jh-98.web.app",
-    "https://food-jh-98.web.app/*",
-    "https://food-jh-98.web.app/n20/",
-    "https://api.samdulshop.shop/n20/",
-    "https://api.samdulshop.shop/n20/*"
-]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=[
+        "https://food-jh-98.web.app",
+        "https://api.samdulshop.shop"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"]
